@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareBridge AI — Healthcare Portal Authentication</title>
+    <meta name="description" content="Secure clinical login and registration for CareBridge AI discharge care planning.">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        /* Auth Page Dedicated Healthcare Styles */
+        body.auth-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0fdfa 0%, #f8fafc 50%, #e0f2fe 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+        }
+
+        .auth-wrapper {
+            width: 100%;
+            max-width: 960px;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px -15px rgba(13, 148, 136, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.8);
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1.15fr;
+        }
+
+        @media (max-width: 840px) {
+            .auth-wrapper {
+                grid-template-columns: 1fr;
+                max-width: 480px;
+            }
+        }
+
+        /* Left Side Healthcare Welcome Panel */
+        .auth-brand-panel {
+            background: linear-gradient(145deg, #0f766e 0%, #0d9488 50%, #0284c7 100%);
+            color: #ffffff;
+            padding: 48px 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-brand-panel::before {
+            content: "";
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 220px;
+            height: 220px;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+        }
+
+        .auth-brand-panel::after {
+            content: "+";
+            position: absolute;
+            bottom: 20px;
+            right: 25px;
+            font-size: 140px;
+            line-height: 1;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.06);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .brand-header-auth {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .brand-header-auth .logo-box {
+            width: 46px;
+            height: 46px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .brand-header-auth h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-header-auth span {
+            font-size: 12px;
+            color: #ccfbf1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .auth-intro-title {
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1.35;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+
+        .auth-intro-desc {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #e0f2fe;
+            margin-bottom: 28px;
+        }
+
+        .auth-features-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 24px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .auth-features-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13.5px;
+            color: #f0fdfa;
+        }
+
+        .auth-features-list .check-icon {
+            width: 20px;
+            height: 20px;
+            background: rgba(255,255,255,0.22);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        .auth-panel-footer {
+            font-size: 12px;
+            color: #ccfbf1;
+            border-top: 1px solid rgba(255,255,255,0.18);
+            padding-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Right Side Form Container */
+        .auth-form-panel {
+            padding: 44px 38px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        @media (max-width: 500px) {
+            .auth-form-panel {
+                padding: 30px 20px;
+            }
+        }
+
+        /* Tab Switcher */
+        .auth-nav-tabs {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .auth-tab-btn {
+            flex: 1;
+            padding: 10px 14px;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .auth-tab-btn.active {
+            background: #ffffff;
+            color: #0f766e;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Alert Box */
+        .auth-alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            margin-bottom: 20px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .auth-alert.error {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .auth-alert.success {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .auth-alert.info {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: #f0fdfa;
+            color: #0f766e;
+            border: 1px solid #99f6e4;
+        }
+
+        /* Form Controls */
+        .auth-form-group {
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+        .auth-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .input-with-icon {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon-left {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        .auth-input, .auth-select {
+            width: 100%;
+            height: 44px;
+            padding: 10px 42px 10px 40px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #1e293b;
+            background: #ffffff;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .auth-select {
+            padding-right: 28px;
+            cursor: pointer;
+        }
+
+        .auth-input:focus, .auth-select:focus {
+            outline: none;
+            border-color: #0d9488;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+        }
+
+        .auth-input.is-invalid {
+            border-color: #ef4444;
+            background-color: #fffaf0;
+        }
+
+        .auth-input.is-valid {
+            border-color: #10b981;
+        }
+
+        /* Password Show/Hide Toggle */
+        .pwd-toggle-btn {
+            position: absolute;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.15s ease;
+        }
+
+        .pwd-toggle-btn:hover {
+            color: #0d9488;
+        }
+
+        .field-helper {
+            font-size: 11.5px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        /* Password Strength Bar */
+        .pwd-strength-container {
+            margin-top: 6px;
+            display: none;
+        }
+
+        .pwd-strength-bar {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+            display: flex;
+            gap: 2px;
+        }
+
+        .pwd-strength-segment {
+            flex: 1;
+            height: 100%;
+            background: #e2e8f0;
+            transition: background 0.3s ease;
+        }
+
+        .pwd-strength-text {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* Additional Row (Remember / Forgot) */
+        .auth-options-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            font-size: 13px;
+        }
+
+        .auth-checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #475569;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .auth-checkbox-label input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #0d9488;
+            cursor: pointer;
+        }
+
+        .auth-link {
+            color: #0d9488;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.15s ease;
+            cursor: pointer;
+        }
+
+        .auth-link:hover {
+            color: #0f766e;
+            text-decoration: underline;
+        }
+
+        /* Submit Button */
+        .auth-submit-btn {
+            width: 100%;
+            height: 46px;
+            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+            transition: all 0.2s ease;
+        }
+
+        .auth-submit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(13, 148, 136, 0.35);
+        }
+
+        .auth-submit-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Quick Demo Accounts Helper */
+        .demo-accounts-card {
+            margin-top: 24px;
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .demo-header {
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .demo-btns-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-demo-chip {
+            padding: 7px 10px;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #1e293b;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-demo-chip:hover {
+            background: #f0fdfa;
+            border-color: #0d9488;
+            color: #0f766e;
+        }
+
+        /* Spinner */
+        .btn-spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="auth-page">
+
+    <div class="auth-wrapper">
+        <!-- Left Brand & Clinical Highlights Panel -->
+        <div class="auth-brand-panel">
+            <div>
+                <div class="brand-header-auth">
+                    <div class="logo-box">🌉</div>
+                    <div>
+                        <h1>CareBridge AI</h1>
+                        <span>Patient & Healthcare Transition Portal</span>
+                    </div>
+                </div>
+
+                <h2 class="auth-intro-title">Safe, Patient-Centered Hospital Discharge Recovery</h2>
+                <p class="auth-intro-desc">
+                    Log in to transform complex hospital discharge instructions into patient-friendly, verified care plans in English & Telugu with zero medical hallucinations.
+                </p>
+
+                <ul class="auth-features-list">
+                    <li>
+                        <span class="check-icon">✓</span>
+                        <span><strong>11-Point Faithfulness Gate:</strong> Halts medication dosage errors</span>
+                    </li>
+                    <li>
+                        <span class="check-icon">✓</span>
+                        <span><strong>Natural Telugu Localization:</strong> Culturally authentic script</span>
+                    </li>
+                    <li>
+                        <span class="check-icon">✓</span>
+                        <span><strong>Printable Fridge Sheets:</strong> 1-page A4 patient medication tracking</span>
+                    </li>
+                    <li>
+                        <span class="check-icon">✓</span>
+                        <span><strong>7-Day Pill Timetable:</strong> Structured Morning, Noon, Night intervals</span>
+                    </li>
+                    <li>
+                        <span class="check-icon">✓</span>
+                        <span><strong>Voice Accessibility:</strong> Multi-lingual speech reader for older adults</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="auth-panel-footer">
+                <span>🔒 HIPAA Data Privacy Guard</span>
+                <span>Version 1.0</span>
+            </div>
+        </div>
+
+        <!-- Right Side Auth Forms Panel -->
+        <div class="auth-form-panel">
+            <!-- Tabs -->
+            <div class="auth-nav-tabs" id="auth-tabs">
+                <button type="button" class="auth-tab-btn active" id="tab-btn-login" onclick="switchAuthTab('login')">
+                    <span>🔑 Sign In</span>
+                </button>
+                <button type="button" class="auth-tab-btn" id="tab-btn-register" onclick="switchAuthTab('register')">
+                    <span>📝 Create Account</span>
+                </button>
+                <button type="button" class="auth-tab-btn" id="tab-btn-forgot" onclick="switchAuthTab('forgot')" style="display:none;">
+                    <span>❓ Reset Password</span>
+                </button>
+            </div>
+
+            <!-- Dynamic Alert Box -->
+            <div class="auth-alert" id="auth-alert-box">
+                <span id="alert-icon">⚠️</span>
+                <span id="alert-message">Alert message</span>
+            </div>
+
+            <!-- 1. LOGIN FORM -->
+            <form id="login-form" onsubmit="handleLoginSubmit(event)" novalidate>
+                <div class="auth-form-group">
+                    <label class="auth-label" for="login-email">Email Address</label>
+                    <div class="input-with-icon">
+                        <span class="input-icon-left">✉️</span>
+                        <input
+                            type="email"
+                            id="login-email"
+                            class="auth-input"
+                            placeholder="patient@example.com"
+                            required
+                            autocomplete="email"
+                        >
+                    </div>
+                </div>
+
+                <div class="auth-form-group">
+                    <label class="auth-label" for="login-password">Password</label>
+                    <div class="input-with-icon">
+                        <span class="input-icon-left">🔒</span>
+                        <input
+                            type="password"
+                            id="login-password"
+                            class="auth-input"
+                            placeholder="Enter your password"
+                            required
+                            autocomplete="current-password"
+                        >
+                        <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('login-password', this)" title="Show/Hide Password">
+                            👁️
+                        </button>
+                    </div>
+                </div>
+
+                <div class="auth-options-row">
+                    <label class="auth-checkbox-label">
+                        <input type="checkbox" id="login-remember">
+                        <span>Remember me for 30 days</span>
+                    </label>
+                    <span class="auth-link" onclick="switchAuthTab('forgot')">Forgot Password?</span>
+                </div>
+
+                <button type="submit" class="auth-submit-btn" id="login-submit-btn">
+                    <span class="btn-spinner" id="login-spinner"></span>
+                    <span id="login-btn-text">Sign In to Dashboard →</span>
+                </button>
+
+                <div style="text-align: center; margin-top: 22px; font-size: 13.5px; color: #64748b;">
+                    Don't have an account yet? <span class="auth-link" onclick="switchAuthTab('register')">Create an Account</span>
+                </div>
+            </form>
+
+            <!-- 2. REGISTER FORM -->
+            <form id="register-form" style="display:none;" onsubmit="handleRegisterSubmit(event)" novalidate>
+                <div class="auth-form-group">
+                    <label class="auth-label" for="reg-name">Full Name</label>
+                    <div class="input-with-icon">
+                        <span class="input-icon-left">👤</span>
+                        <input
+                            type="text"
+                            id="reg-name"
+                            class="auth-input"
+                            placeholder="e.g. Ramesh Kumar / Bhavya Sharma"
+                            required
+                            autocomplete="name"
+                        >
+                    </div>
+                </div>
+
+                <div class="auth-form-group">
+                    <label class="auth-label" for="reg-email">Email Address</label>
+                    <div class="input-with-icon">
+                        <span class="input-icon-left">✉️</span>
+                        <input
+                            type="email"
+                            id="reg-email"
+                            class="auth-input"
+                            placeholder="patient@example.com"
+                            required
+                            autocomplete="email"
+                        >
+                    </div>
+                </div>
+
+                <div class="auth-form-group">
+                    <label class="auth-label" for="reg-password">Password (min 8 chars, 1 letter, 1 number)</label>
+                    <div class="input-with-icon">
+                        <span class="input-icon-left">🔒</span>
+                        <input
+                            type="password"
+                            id="reg-password"
+                            class="auth-input"
+                            placeholder="Create a strong password"
+                            required
+                            oninput="checkPasswordStrength(this.value)"
+                            autocomplete="new-password"
+                        >
+                        <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('reg-password', this)" title="Show/Hide Password">
+                            👁️
+                        </button>
+                    </div>
+                    <div class="pwd-strength-container" id="pwd-strength-box">
+                        <div class="pwd-strength-bar">
+                            <div class="pwd-strength-segment" id="pwd-seg-1"></div>
+                            <div class="pwd-strength-segment" id="pwd-seg-2"></div>
+                            <div class="pwd-strength-segment" id="pwd-seg-3"></div>
+                        </div>
+                        <div class="pwd-strength-text" id="pwd-strength-label">Password strength: Weak</div>
+                    </div>
+                </div>
+
+                <div class="auth-form-group">
+                    <label class="auth-label" for="reg-confirm">Confirm Password</label>
+                    <div class="input-with-icon">
+                        <span class="input-icon-left">🛡️</span>
+                        <input
+                            type="password"
+                            id="reg-confirm"
+                            class="auth-input"
+                            placeholder="Re-enter your password"
+                            required
+                            oninput="checkPasswordMatch()"
+                            autocomplete="new-password"
+                        >
+                        <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('reg-confirm', this)" title="Show/Hide Password">
+                            👁️
+                        </button>
+                    </div>
+                    <div class="field-helper" id="match-helper"></div>
+                </div>
+
+                <div class="auth-options-row">
+                    <label class="auth-checkbox-label">
+                        <input type="checkbox" id="reg-agree" required checked>
+                        <span style="font-size:12px;">I agree to patient clinical safety directives & data confidentiality.</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="auth-submit-btn" id="reg-submit-btn">
+                    <span class="btn-spinner" id="reg-spinner"></span>
+                    <span id="reg-btn-text">Create Account & Proceed →</span>
+                </button>
+
+                <div style="text-align: center; margin-top: 16px; font-size: 13px; color: #64748b;">
+                    Already registered? <span class="auth-link" onclick="switchAuthTab('login')">Sign In here</span>
+                </div>
+            </form>
+
+            <!-- 3. FORGOT / RESET PASSWORD FORM -->
+            <form id="forgot-form" style="display:none;" onsubmit="handleForgotSubmit(event)" novalidate>
+                <div style="margin-bottom: 20px;">
+                    <h3 style="font-size: 18px; color: #0f172a; margin-bottom: 6px;">Reset Your Password</h3>
+                    <p style="font-size: 13px; color: #64748b;">
+                        Enter your registered account email to request a secure password reset token.
+                    </p>
+                </div>
+
+                <div class="auth-form-group" id="forgot-email-step">
+                    <label class="auth-label" for="forgot-email">Account Email</label>
+                    <div class="input-with-icon">
+                        <span class="input-icon-left">✉️</span>
+                        <input
+                            type="email"
+                            id="forgot-email"
+                            class="auth-input"
+                            placeholder="Enter your registered email"
+                            required
+                        >
+                    </div>
+                    <button type="button" class="auth-submit-btn" style="margin-top: 14px;" onclick="requestResetToken()">
+                        <span>Request Reset Authorization →</span>
+                    </button>
+                </div>
+
+                <!-- Step 2: Enter token & new password -->
+                <div id="forgot-reset-step" style="display: none; border-top: 1px solid #e2e8f0; padding-top: 18px; margin-top: 14px;">
+                    <div class="auth-form-group">
+                        <label class="auth-label" for="reset-token-input">Verification Token</label>
+                        <input
+                            type="text"
+                            id="reset-token-input"
+                            class="auth-input"
+                            placeholder="Paste 40-character reset token"
+                            style="padding-left: 14px;"
+                            required
+                        >
+                    </div>
+
+                    <div class="auth-form-group">
+                        <label class="auth-label" for="reset-new-pwd">New Password</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon-left">🔒</span>
+                            <input
+                                type="password"
+                                id="reset-new-pwd"
+                                class="auth-input"
+                                placeholder="Minimum 8 characters"
+                                required
+                            >
+                            <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('reset-new-pwd', this)">
+                                👁️
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="auth-form-group">
+                        <label class="auth-label" for="reset-confirm-pwd">Confirm New Password</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon-left">🛡️</span>
+                            <input
+                                type="password"
+                                id="reset-confirm-pwd"
+                                class="auth-input"
+                                placeholder="Re-enter new password"
+                                required
+                            >
+                            <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('reset-confirm-pwd', this)">
+                                👁️
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="auth-submit-btn" id="reset-submit-btn">
+                        <span>Save New Password & Sign In →</span>
+                    </button>
+                </div>
+
+                <div style="text-align: center; margin-top: 16px; font-size: 13px;">
+                    <span class="auth-link" onclick="switchAuthTab('login')">← Back to Sign In</span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Check URL search params for default tab (e.g., /login?tab=register)
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const tab = params.get('tab');
+            if (tab === 'register') {
+                switchAuthTab('register');
+            } else if (tab === 'forgot') {
+                switchAuthTab('forgot');
+            }
+        });
+
+        // Tab Navigation
+        function switchAuthTab(tabName) {
+            clearAlert();
+            const btnLogin = document.getElementById('tab-btn-login');
+            const btnRegister = document.getElementById('tab-btn-register');
+            const btnForgot = document.getElementById('tab-btn-forgot');
+
+            const formLogin = document.getElementById('login-form');
+            const formRegister = document.getElementById('register-form');
+            const formForgot = document.getElementById('forgot-form');
+
+            btnLogin.classList.remove('active');
+            btnRegister.classList.remove('active');
+            btnForgot.classList.remove('active');
+
+            formLogin.style.display = 'none';
+            formRegister.style.display = 'none';
+            formForgot.style.display = 'none';
+
+            if (tabName === 'login') {
+                btnLogin.classList.add('active');
+                btnForgot.style.display = 'none';
+                formLogin.style.display = 'block';
+                document.getElementById('login-email').focus();
+            } else if (tabName === 'register') {
+                btnRegister.classList.add('active');
+                btnForgot.style.display = 'none';
+                formRegister.style.display = 'block';
+                document.getElementById('reg-name').focus();
+            } else if (tabName === 'forgot') {
+                btnForgot.style.display = 'flex';
+                btnForgot.classList.add('active');
+                formForgot.style.display = 'block';
+                document.getElementById('forgot-email').focus();
+            }
+        }
+
+        // Show/Hide Password Toggle
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
+                btn.title = 'Hide password';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁️';
+                btn.title = 'Show password';
+            }
+        }
+
+        // Password Strength Checker
+        function checkPasswordStrength(password) {
+            const box = document.getElementById('pwd-strength-box');
+            const seg1 = document.getElementById('pwd-seg-1');
+            const seg2 = document.getElementById('pwd-seg-2');
+            const seg3 = document.getElementById('pwd-seg-3');
+            const label = document.getElementById('pwd-strength-label');
+
+            if (!password) {
+                box.style.display = 'none';
+                return;
+            }
+            box.style.display = 'block';
+
+            let score = 0;
+            if (password.length >= 8) score++;
+            if (/[A-Za-z]/.test(password) && /[0-9]/.test(password)) score++;
+            if (password.length >= 10 && /[^A-Za-z0-9]/.test(password)) score++;
+
+            seg1.style.background = '#e2e8f0';
+            seg2.style.background = '#e2e8f0';
+            seg3.style.background = '#e2e8f0';
+
+            if (score <= 1) {
+                seg1.style.background = '#ef4444';
+                label.textContent = 'Password strength: Weak (Need 8+ chars & numbers)';
+                label.style.color = '#ef4444';
+            } else if (score === 2) {
+                seg1.style.background = '#f59e0b';
+                seg2.style.background = '#f59e0b';
+                label.textContent = 'Password strength: Good';
+                label.style.color = '#d97706';
+            } else {
+                seg1.style.background = '#10b981';
+                seg2.style.background = '#10b981';
+                seg3.style.background = '#10b981';
+                label.textContent = 'Password strength: Strong & Secure';
+                label.style.color = '#059669';
+            }
+        }
+
+        // Password Match Checker
+        function checkPasswordMatch() {
+            const pwd = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
+            const helper = document.getElementById('match-helper');
+            const confirmInput = document.getElementById('reg-confirm');
+
+            if (!confirm) {
+                helper.textContent = '';
+                confirmInput.classList.remove('is-valid', 'is-invalid');
+                return;
+            }
+
+            if (pwd === confirm) {
+                helper.textContent = '✓ Passwords match.';
+                helper.style.color = '#10b981';
+                confirmInput.classList.remove('is-invalid');
+                confirmInput.classList.add('is-valid');
+            } else {
+                helper.textContent = '✕ Passwords do not match.';
+                helper.style.color = '#ef4444';
+                confirmInput.classList.remove('is-valid');
+                confirmInput.classList.add('is-invalid');
+            }
+        }
+
+        // Alert Notification Helpers
+        function showAlert(msg, type = 'error') {
+            const box = document.getElementById('auth-alert-box');
+            const msgEl = document.getElementById('alert-message');
+            const iconEl = document.getElementById('alert-icon');
+
+            box.className = 'auth-alert ' + type;
+            msgEl.textContent = msg;
+
+            if (type === 'error') iconEl.textContent = '⚠️';
+            else if (type === 'success') iconEl.textContent = '✅';
+            else iconEl.textContent = 'ℹ️';
+
+            box.style.display = 'flex';
+        }
+
+        function clearAlert() {
+            const box = document.getElementById('auth-alert-box');
+            box.style.display = 'none';
+        }
+
+        // Email regex
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // 1. Submit Login
+        async function handleLoginSubmit(e) {
+            e.preventDefault();
+            clearAlert();
+
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const rememberMe = document.getElementById('login-remember').checked;
+
+            if (!email) {
+                showAlert('Please enter your email address.', 'error');
+                return;
+            }
+            if (!isValidEmail(email)) {
+                showAlert('Please enter a valid email format.', 'error');
+                return;
+            }
+            if (!password) {
+                showAlert('Please enter your password.', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('login-submit-btn');
+            const spinner = document.getElementById('login-spinner');
+            const btnText = document.getElementById('login-btn-text');
+
+            btn.disabled = true;
+            spinner.style.display = 'inline-block';
+            btnText.textContent = 'Authenticating...';
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, remember_me: rememberMe })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || data.message || 'Login failed. Please check your credentials.');
+                }
+
+                showAlert('Login successful! Redirecting to dashboard...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 600);
+
+            } catch (err) {
+                showAlert(err.message, 'error');
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.textContent = 'Sign In to Dashboard →';
+            }
+        }
+
+        // 2. Submit Register
+        async function handleRegisterSubmit(e) {
+            e.preventDefault();
+            clearAlert();
+
+            const fullName = document.getElementById('reg-name').value.trim();
+            const role = 'Patient';
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const confirmPassword = document.getElementById('reg-confirm').value;
+            const agree = document.getElementById('reg-agree').checked;
+
+            if (!fullName || fullName.length < 2) {
+                showAlert('Please provide your full name (minimum 2 characters).', 'error');
+                return;
+            }
+            if (!email || !isValidEmail(email)) {
+                showAlert('Please provide a valid email address.', 'error');
+                return;
+            }
+            if (password.length < 8) {
+                showAlert('Password must be at least 8 characters long.', 'error');
+                return;
+            }
+            if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+                showAlert('Password must contain at least one letter and one number.', 'error');
+                return;
+            }
+            if (password !== confirmPassword) {
+                showAlert('Passwords do not match. Please re-enter.', 'error');
+                return;
+            }
+            if (!agree) {
+                showAlert('You must agree to clinical safety directives.', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('reg-submit-btn');
+            const spinner = document.getElementById('reg-spinner');
+            const btnText = document.getElementById('reg-btn-text');
+
+            btn.disabled = true;
+            spinner.style.display = 'inline-block';
+            btnText.textContent = 'Creating Account...';
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        confirm_password: confirmPassword,
+                        full_name: fullName,
+                        role
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || data.message || 'Registration failed.');
+                }
+
+                showAlert('Account created successfully! Redirecting to dashboard...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 700);
+
+            } catch (err) {
+                showAlert(err.message, 'error');
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.textContent = 'Create Account & Proceed →';
+            }
+        }
+
+        // 3. Request Password Reset Token
+        async function requestResetToken() {
+            clearAlert();
+            const email = document.getElementById('forgot-email').value.trim();
+            if (!email || !isValidEmail(email)) {
+                showAlert('Please enter a valid registered email address.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Could not generate reset request.');
+                }
+
+                // Show step 2
+                document.getElementById('forgot-reset-step').style.display = 'block';
+                if (data.token) {
+                    document.getElementById('reset-token-input').value = data.token;
+                    showAlert('Reset token generated! We autofilled the token below. Now enter your new password.', 'info');
+                } else {
+                    showAlert(data.message || 'Reset token generated.', 'info');
+                }
+
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        }
+
+        // 4. Save New Password
+        async function handleForgotSubmit(e) {
+            e.preventDefault();
+            clearAlert();
+
+            const token = document.getElementById('reset-token-input').value.trim();
+            const newPassword = document.getElementById('reset-new-pwd').value;
+            const confirmPassword = document.getElementById('reset-confirm-pwd').value;
+
+            if (!token) {
+                showAlert('Please provide the verification token.', 'error');
+                return;
+            }
+            if (newPassword.length < 8) {
+                showAlert('New password must be at least 8 characters long.', 'error');
+                return;
+            }
+            if (!/[A-Za-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+                showAlert('Password must contain at least one letter and one number.', 'error');
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                showAlert('New passwords do not match.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        token,
+                        new_password: newPassword,
+                        confirm_password: confirmPassword
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || data.message || 'Password reset failed.');
+                }
+
+                showAlert('Password reset successful! You can now sign in.', 'success');
+                setTimeout(() => {
+                    switchAuthTab('login');
+                }, 1000);
+
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

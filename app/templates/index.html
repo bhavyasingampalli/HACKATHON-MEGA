@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareBridge AI — Discharge Summary to Patient-Friendly Care Plan</title>
+    <meta name="description" content="Turn complex hospital discharge instructions into an accurate, bilingual, patient-friendly care plan in English and Telugu with medical faithfulness verification.">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="app-header">
+        <div class="container header-inner">
+            <div class="brand" onclick="showSection('section-home')">
+                <div class="brand-icon">🌉</div>
+                <div class="brand-text">
+                    <h1>CareBridge AI</h1>
+                    <span>Discharge Care Companion</span>
+                </div>
+            </div>
+
+            <nav class="main-nav">
+                <button class="nav-link active" data-target="section-home">🏠 Home</button>
+                <button class="nav-link" data-target="section-create">📝 Create Care Plan</button>
+                <button class="nav-link" data-target="section-eval">📊 Evaluation Dashboard</button>
+                <button class="nav-link" data-target="section-history">🕒 Previous Reports</button>
+                <button class="nav-link" data-target="section-about">🛡️ About & Safety</button>
+            </nav>
+
+            <div class="header-actions">
+                <div class="font-scaler" title="Adjust text size for easier reading">
+                    <button class="font-btn active" id="font-normal" title="Normal text size">A</button>
+                    <button class="font-btn" id="font-lg" title="Large text size">A+</button>
+                    <button class="font-btn" id="font-xl" title="Extra large text size">A++</button>
+                </div>
+                <button class="btn-outline" style="padding:6px 12px; font-size:13px;" onclick="document.getElementById('settings-modal').style.display='flex'">⚙️ API Config</button>
+                
+                <!-- Authenticated User Profile & Dropdown -->
+                <div class="user-nav-wrapper" id="nav-user-wrapper" style="display: none; position: relative;">
+                    <button class="user-profile-btn" id="user-profile-btn" onclick="toggleProfileDropdown(event)" aria-haspopup="true" aria-expanded="false" title="Account Menu">
+                        <div class="user-avatar" id="nav-user-avatar">--</div>
+                        <span class="user-name" id="nav-user-name">User</span>
+                        <span class="dropdown-chevron" id="dropdown-chevron">▾</span>
+                    </button>
+                    
+                    <!-- Profile Dropdown Menu -->
+                    <div class="profile-dropdown-menu" id="profile-dropdown-menu">
+                        <div class="dropdown-user-header">
+                            <div class="dropdown-avatar-lg" id="dropdown-user-avatar">--</div>
+                            <div class="dropdown-user-meta">
+                                <span class="dropdown-name" id="dropdown-user-name">User Name</span>
+                                <span class="dropdown-email" id="dropdown-user-email">user@email.com</span>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <button type="button" class="dropdown-item" onclick="openProfileModal()">
+                            <span class="dropdown-item-icon">👤</span>
+                            <div class="dropdown-item-info">
+                                <span class="dropdown-item-title">My Profile</span>
+                                <span class="dropdown-item-sub">View account information</span>
+                            </div>
+                        </button>
+                        <button type="button" class="dropdown-item" onclick="navigateToMyPlans()">
+                            <span class="dropdown-item-icon">📋</span>
+                            <div class="dropdown-item-info">
+                                <span class="dropdown-item-title">My Care Plans</span>
+                                <span class="dropdown-item-sub">View your saved reports</span>
+                            </div>
+                        </button>
+                        <div class="dropdown-divider"></div>
+                        <button type="button" class="dropdown-item logout-item" onclick="handleLogout()">
+                            <span class="dropdown-item-icon">🚪</span>
+                            <div class="dropdown-item-info">
+                                <span class="dropdown-item-title">Logout</span>
+                                <span class="dropdown-item-sub">Sign out of CareBridge</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- SECTION 1: HOME LANDING PAGE -->
+    <section id="section-home" class="app-section">
+        <div class="hero-section">
+            <div class="container">
+                <div class="hero-badge">
+                    <span>🏥 Hospital-to-Home Transition Safety</span>
+                </div>
+                <h2 class="hero-headline">Understand Your Care. Recover With Confidence.</h2>
+                <p class="hero-subtitle">
+                    Turn complex hospital discharge instructions into a simple, bilingual care plan for you and your family.
+                </p>
+                <button class="hero-cta" id="hero-create-btn">
+                    <span>✨ Create My Care Plan</span>
+                    <span>→</span>
+                </button>
+
+                <div class="features-pills">
+                    <div class="pill-item">🛡️ 11-Point Medical Faithfulness Gate</div>
+                    <div class="pill-item">🇮🇳 Natural Telugu & English Support</div>
+                    <div class="pill-item">🧊 1-Page Printable Fridge Sheet</div>
+                    <div class="pill-item">📅 7-Day Medication Timetable</div>
+                    <div class="pill-item">🔊 Senior-Friendly Voice Reader</div>
+                    <div class="pill-item">📖 Class 8 Plain English Standard</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container" style="padding-top: 40px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                <div class="card">
+                    <div class="card-title">
+                        <span style="font-size:24px;">⚠️</span>
+                        <span>The Hospital Discharge Challenge</span>
+                    </div>
+                    <p style="color:#475569; font-size:14px; margin-top:8px;">
+                        Discharge summaries are filled with rapid medical jargon, Latin abbreviations (OD, BD, PC, PRN), and critical warning signs that patients and families often misunderstand, leading to medication errors and preventable hospital readmissions.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span style="font-size:24px;">🛡️</span>
+                        <span>Clinical Faithfulness First</span>
+                    </div>
+                    <p style="color:#475569; font-size:14px; margin-top:8px;">
+                        Medical faithfulness is more important than fluency. CareBridge AI never invents, omits, or alters clinical instructions. Every single extracted medication, dosage, and warning sign is cross-checked against source clinical facts.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span style="font-size:24px;">🌐</span>
+                        <span>Natural Telugu Localization</span>
+                    </div>
+                    <p style="color:#475569; font-size:14px; margin-top:8px;">
+                        Native Telugu translations use natural Telugu script (తెలుగు లిపి) while preserving exact drug names and numeric dosages to ensure complete safety and cultural understanding for Telugu-speaking families across Telangana and Andhra Pradesh.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: CREATE CARE PLAN -->
+    <section id="section-create" class="app-section" style="display: none;">
+        <main class="app-main">
+            <div class="container">
+                
+                <!-- Input Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>📄</span>
+                            <span>Upload Discharge Summary</span>
+                        </div>
+                        <span style="font-size:13px; color:#64748b;">PDF, JPG, JPEG, PNG, or TXT • Max 10 MB</span>
+                    </div>
+
+                    <div class="input-grid">
+                        <!-- Dropzone -->
+                        <div>
+                            <div class="dropzone" id="dropzone">
+                                <div class="dropzone-icon">📥</div>
+                                <div class="dropzone-title">Click to upload or drag & drop PDF, JPG, PNG</div>
+                                <div class="dropzone-hint">Accepts discharge PDFs, scanned documents, and prescription photos with OCR processing.</div>
+                                <input type="file" id="file-input" accept=".pdf,.txt,.jpg,.jpeg,.png,image/jpeg,image/png" style="display: none;">
+                            </div>
+                            <div id="upload-status" style="display:none; font-size:13px; color:#0f766e; margin-top:10px; background:#f0fdfa; padding:8px 12px; border-radius:6px; border:1px solid #99f6e4;"></div>
+                        </div>
+
+                        <!-- Text Area -->
+                        <div>
+                            <textarea id="source-text-input" class="textarea-field" placeholder="Or paste the discharge summary text here directly... Include diagnosis, medications, dosages, dietary instructions, and follow-up details."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Quick Demo Samples Bar -->
+                    <div class="samples-bar">
+                        <div class="samples-title">⚡ Or Click to Load a Synthetic Clinical Demo:</div>
+                        <div class="samples-buttons" id="sample-buttons-container">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+
+                    <div id="input-error" style="display:none; background:#fef2f2; border:1px solid #fecaca; color:#991b1b; padding:12px 16px; border-radius:8px; margin-top:16px; font-size:14px;"></div>
+
+                    <!-- Action Bar -->
+                    <div class="action-bar">
+                        <div class="lang-selector">
+                            <span style="font-size:14px; font-weight:600; color:#475569;">Target Languages:</span>
+                            <span style="background:#ccfbf1; color:#0f766e; font-size:13px; font-weight:700; padding:4px 10px; border-radius:12px;">English & Telugu (తెలుగు)</span>
+                        </div>
+
+                        <button class="btn-primary" onclick="generatePlan()" id="generate-btn">
+                            <span>🚀 Generate Verified Care Plan</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading State Indicator -->
+                <div id="generation-loading" style="display:none; text-align:center; padding:40px 20px;">
+                    <div style="font-size:40px; margin-bottom:12px;">⏳</div>
+                    <h3 style="color:#0f766e; font-size:18px;">Extracting Medical Data & Running Faithfulness Verification...</h3>
+                    <p style="color:#64748b; font-size:14px; margin-top:4px;">
+                        Parsing dosages with PyMuPDF & OCR • Citing source sentences • Checking 11-point safety gate • Generating Telugu care plan
+                    </p>
+                </div>
+
+                <!-- RESULTS CONTAINER -->
+                <div id="results-container" style="display: none;">
+                    
+                    <!-- Hard Safety Gate Status Banner -->
+                    <div id="safety-gate-banner" class="safety-banner verified">
+                        <div id="safety-banner-icon" class="safety-icon">🛡️</div>
+                        <div class="safety-details">
+                            <h3 id="safety-banner-title">100% Medical Faithfulness Verified</h3>
+                            <p id="safety-banner-desc">All clinical instructions match the source discharge summary with zero alteration.</p>
+                        </div>
+                    </div>
+
+                    <!-- Readability & Preservation Metrics Bar -->
+                    <div class="metrics-bar">
+                        <div class="metric-card">
+                            <div class="metric-label">Readability Level</div>
+                            <div class="metric-value" id="metric-grade">Grade 7.2</div>
+                            <div class="metric-hint" id="metric-grade-label">Class 7 - 8 (Target Met)</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-label">Reading Ease Score</div>
+                            <div class="metric-value" id="metric-ease">74.5 / 100</div>
+                            <div class="metric-hint">Flesch Reading Ease Index</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-label">Fact Preservation</div>
+                            <div class="metric-value" id="metric-preservation" style="color:#0f766e;">100%</div>
+                            <div class="metric-hint">Preserved across English & Telugu</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-label">Care Plan Length</div>
+                            <div class="metric-value" id="metric-words" style="font-size:18px;">340 words</div>
+                            <div class="metric-hint">Concise Class 8 phrasing</div>
+                        </div>
+                    </div>
+
+                    <!-- Toolbar Actions: Language Tabs, Fridge Sheet, Audio, Timetable -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+                        <!-- Language Tabs -->
+                        <div class="language-tabs">
+                            <button class="lang-tab active" data-lang="en" onclick="setLanguage('en')">🇬🇧 English</button>
+                            <button class="lang-tab" data-lang="te" onclick="setLanguage('te')">🇮🇳 తెలుగు (Telugu)</button>
+                            <button class="lang-tab" data-lang="both" onclick="setLanguage('both')">⚖️ Side-by-Side Bilingual</button>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button class="btn-outline" onclick="openFridgeSheet('html')">🖨️ Print Fridge Sheet</button>
+                            <button class="btn-outline" onclick="openFridgeSheet('pdf')">📥 Download Fridge PDF</button>
+                            <button class="btn-outline" onclick="toggleTimetable()">📅 7-Day Timetable</button>
+                            <button class="btn-outline" onclick="openAuditModal()">🔍 Inspect Safety Audit</button>
+                        </div>
+                    </div>
+
+                    <!-- Audio Reader Bar -->
+                    <div class="audio-player-bar">
+                        <span style="font-size:20px;">🔊</span>
+                        <div>
+                            <strong>Voice Audio Reader</strong>
+                            <div style="font-size:12px; color:#64748b;">Listens to the validated care plan in English or Telugu</div>
+                        </div>
+                        <div style="margin-left:auto; display:flex; align-items:center; gap:10px;">
+                            <select id="audio-speed" style="padding:4px 8px; border-radius:4px; border:1px solid #cbd5e1; font-size:12px;">
+                                <option value="0.8">0.8x (Slower)</option>
+                                <option value="1.0" selected>1.0x (Normal)</option>
+                                <option value="1.2">1.2x (Faster)</option>
+                            </select>
+                            <button class="audio-btn" id="audio-play-btn" onclick="toggleAudio()">▶️ Listen to Care Plan</button>
+                        </div>
+                    </div>
+
+                    <!-- Main Dynamic Care Plan Display Area -->
+                    <div id="care-plan-display-area">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Seven-Day Timetable Card (Collapsible) -->
+                    <div class="card" id="timetable-card" style="display:none; margin-top:24px;">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span>📅</span>
+                                <span>Seven-Day Medicine Timetable</span>
+                            </div>
+                            <span style="font-size:13px; color:#0f766e; font-weight:600;">Daily Schedule</span>
+                        </div>
+                        <div id="timetable-view"></div>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+    </section>
+
+    <!-- SECTION 3: EVALUATION & SAFETY DASHBOARD -->
+    <section id="section-eval" class="app-section" style="display: none;">
+        <main class="app-main">
+            <div class="container">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>📊</span>
+                            <span>Evaluation & Safety Verification Dashboard</span>
+                        </div>
+                        <button class="btn-primary" id="run-benchmarks-btn" onclick="runBenchmarks()">
+                            🚀 Run Automated Evaluation Benchmark Suite
+                        </button>
+                    </div>
+
+                    <p style="color:#475569; font-size:14px; margin-bottom:20px;">
+                        Monitor system-wide clinical safety metrics, medication fact preservation rates, dosage accuracy, and hard safety gate behavior across all processed discharge summaries.
+                    </p>
+
+                    <!-- Aggregate Metrics Grid -->
+                    <div class="metrics-bar">
+                        <div class="metric-card">
+                            <div class="metric-label">Total Summaries Processed</div>
+                            <div class="metric-value" id="stat-total-processed">0</div>
+                            <div class="metric-hint">Historical SQLite database runs</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-label">Verified (100% Faithful)</div>
+                            <div class="metric-value" id="stat-verified-count" style="color:#10b981;">0</div>
+                            <div class="metric-hint">Zero discrepancies detected</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-label">Clinician Review Flagged</div>
+                            <div class="metric-value" id="stat-review-count" style="color:#ef4444;">0</div>
+                            <div class="metric-hint">Safety gate successfully halted errors</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-label">Medication Preservation</div>
+                            <div class="metric-value" id="stat-avg-preservation" style="color:#0f766e;">100%</div>
+                            <div class="metric-hint">Average preservation across all meds</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-label">Dose & Unit Accuracy</div>
+                            <div class="metric-value" id="stat-avg-dose-acc" style="color:#0f766e;">100%</div>
+                            <div class="metric-hint">Preserved exact source strengths</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-label">Emergency Warning Recall</div>
+                            <div class="metric-value" id="stat-avg-warn-recall" style="color:#0f766e;">100%</div>
+                            <div class="metric-hint">Red flags identified and preserved</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-label">Unsupported Instructions</div>
+                            <div class="metric-value" id="stat-total-halluc" style="color:#10b981;">0</div>
+                            <div class="metric-hint">Zero hallucinated medicines</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-label">Average Readability</div>
+                            <div class="metric-value" id="stat-avg-flesch">Grade 7.2</div>
+                            <div class="metric-hint">Class 8 target achieved</div>
+                        </div>
+                    </div>
+
+                    <!-- Live Benchmark Results Container -->
+                    <div id="benchmark-results-container" style="display:none; margin-top:20px;">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <!-- SECTION 4: PREVIOUS REPORTS -->
+    <section id="section-history" class="app-section" style="display: none;">
+        <main class="app-main">
+            <div class="container">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>🕒</span>
+                            <span>Previous Discharge Summary Reports</span>
+                        </div>
+                        <button class="btn-outline" onclick="loadPreviousReports()">🔄 Refresh</button>
+                    </div>
+                    <p style="color:#475569; font-size:14px; margin-bottom:16px;">
+                        Historical records stored in SQLite. Click "View Care Plan" on any report to reload its verified instructions and bilingual care plan.
+                    </p>
+                    <div id="history-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <!-- SECTION 5: ABOUT & SAFETY -->
+    <section id="section-about" class="app-section" style="display: none;">
+        <main class="app-main">
+            <div class="container">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>🛡️</span>
+                            <span>CareBridge AI — Clinical Safety Framework</span>
+                        </div>
+                    </div>
+                    
+                    <div style="font-size:15px; color:#334155; line-height:1.7;">
+                        <h4 style="color:#0f766e; margin-bottom:8px;">1. Core Clinical Directive</h4>
+                        <p style="margin-bottom:14px;">
+                            <strong>Medical faithfulness is strictly more important than fluency.</strong> CareBridge AI is built exclusively for communicating existing clinician-provided discharge instructions in patient-friendly English and Telugu. It does not diagnose diseases, prescribe medication, or alter clinical treatment regimens.
+                        </p>
+
+                        <h4 style="color:#0f766e; margin-bottom:8px;">2. The 11-Point Medical Faithfulness Gate</h4>
+                        <p style="margin-bottom:8px;">Every generated care plan undergoes an automated 11-point audit before presentation:</p>
+                        <ol style="padding-left:24px; margin-bottom:14px;">
+                            <li>Every source medication is fully represented.</li>
+                            <li>Medication strengths and numeric dose quantities are strictly preserved.</li>
+                            <li>Measurement units (mg, mcg, ml, puffs) are preserved.</li>
+                            <li>Dosing frequency (OD, BD, TDS, PRN) is preserved.</li>
+                            <li>Route of administration (oral, sublingual, inhaler) is preserved.</li>
+                            <li>Treatment duration and start/stop dates are preserved.</li>
+                            <li>Follow-up appointment dates and times are exact.</li>
+                            <li>Emergency warning signs (red flags) are never omitted.</li>
+                            <li>Dietary, activity, and wound-care instructions match source facts.</li>
+                            <li>No unsupported clinical instructions or medications are invented.</li>
+                            <li>Telugu translations faithfully preserve all clinical parameters.</li>
+                        </ol>
+
+                        <h4 style="color:#0f766e; margin-bottom:8px;">3. Hard Safety Gate Policy</h4>
+                        <p style="margin-bottom:14px;">
+                            If any discrepancy is detected (e.g. an altered dose from 500 mg to 5000 mg, an altered frequency from twice daily to once daily, or an omitted warning sign), the application immediately triggers the <strong>Hard Safety Gate</strong>: The plan is marked with a prominent amber/red alert: <code>CLINICIAN REVIEW REQUIRED</code>, with verbatim source evidence cited for manual review.
+                        </p>
+
+                        <h4 style="color:#0f766e; margin-bottom:8px;">4. Readability Scoring Methodology</h4>
+                        <p style="margin-bottom:14px;">
+                            English readability is assessed using the established Flesch-Kincaid Grade Level formula, aiming for Class 8 English suitable for adult patients and family caregivers. For Telugu, English syllable formulas are recognized as linguistically invalid; a dedicated Dravidian script assessment reports word count, script purity, and semantic consistency instead.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <!-- Evidence Citation Modal -->
+    <div id="evidence-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color:#0f766e; font-size:18px;">🔍 Source Text Grounding Evidence</h3>
+                <button class="close-btn" onclick="closeEvidenceModal()">&times;</button>
+            </div>
+            <p style="font-size:14px; margin-bottom:10px;"><strong>Instruction:</strong> <span id="evidence-med-name"></span></p>
+            <div style="background:#f1f5f9; border-left:4px solid #0d9488; padding:12px 16px; border-radius:4px; font-style:italic; font-size:14px;" id="evidence-source-text"></div>
+            <p style="font-size:12px; color:#64748b; margin-top:12px;">This exact sentence was extracted from the original discharge summary.</p>
+        </div>
+    </div>
+
+    <!-- Faithfulness Audit Inspector Modal -->
+    <div id="audit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color:#0f766e; font-size:18px;">🛡️ Medical Faithfulness Audit Report</h3>
+                <button class="close-btn" onclick="closeAuditModal()">&times;</button>
+            </div>
+            <div id="audit-modal-body"></div>
+        </div>
+    </div>
+
+    <!-- API Settings Modal -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color:#0f766e; font-size:18px;">⚙️ AI Model & API Configuration</h3>
+                <button class="close-btn" onclick="document.getElementById('settings-modal').style.display='none'">&times;</button>
+            </div>
+            <p style="font-size:14px; color:#475569; margin-bottom:14px;">
+                CareBridge AI operates completely offline with its clinical-grade deterministic NLP parser. You can also configure an LLM API key below:
+            </p>
+            <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:13px; font-weight:700; margin-bottom:4px;">Gemini API Key (Optional)</label>
+                <input type="password" id="api-key-input" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;" placeholder="AIzaSy...">
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button class="btn-outline" onclick="document.getElementById('settings-modal').style.display='none'">Cancel</button>
+                <button class="btn-primary" onclick="document.getElementById('settings-modal').style.display='none'">Save Configuration</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Footer -->
+    <footer class="app-footer">
+        <div class="container">
+            <p><strong>CareBridge AI</strong> — Discharge Summary to Patient-Friendly Care Plan in English & Telugu.</p>
+            <p style="margin-top:4px; font-size:12px;">Medical faithfulness is more important than fluency. Never invent, omit, or alter clinical instructions.</p>
+        </div>
+    </footer>
+
+    <!-- Floating AI Voice Assistant Widget Trigger -->
+    <div id="voice-assistant-fab" class="voice-fab" onclick="toggleVoiceAssistant()" title="Talk with AI Voice Assistant (English, Telugu, Hindi, Tamil)">
+        <div class="voice-fab-pulse"></div>
+        <div class="voice-fab-icon">🎙️</div>
+        <div class="voice-fab-label">
+            <strong>AI Voice Assistant</strong>
+            <span>English • తెలుగు • हिन्दी • தமிழ்</span>
+        </div>
+        <div class="voice-fab-badge">LIVE AI</div>
+    </div>
+
+    <!-- AI Voice Assistant Chat Window Modal / Panel -->
+    <div id="voice-assistant-panel" class="assistant-panel" style="display: none;">
+        <div class="assistant-header">
+            <div class="assistant-header-left">
+                <div class="assistant-avatar">🤖</div>
+                <div>
+                    <h4>CareBridge Voice Companion</h4>
+                    <span id="assistant-status-text" class="assistant-status">🟢 Online • Tap Mic or Type</span>
+                </div>
+            </div>
+            <div class="assistant-header-right">
+                <button class="assistant-control-btn" id="assistant-mute-btn" onclick="toggleAssistantSpeech()" title="Toggle Voice Sound">🔊</button>
+                <button class="assistant-control-btn" onclick="clearAssistantChat()" title="Clear Chat">🗑️</button>
+                <button class="assistant-close-btn" onclick="toggleVoiceAssistant()">&times;</button>
+            </div>
+        </div>
+
+        <!-- Language Selector Bar -->
+        <div class="assistant-lang-bar">
+            <span class="lang-bar-label">Language:</span>
+            <div class="assistant-lang-pills">
+                <button class="assistant-lang-pill active" data-lang="en" onclick="setAssistantLanguage('en')">🇬🇧 English</button>
+                <button class="assistant-lang-pill" data-lang="te" onclick="setAssistantLanguage('te')">🇮🇳 తెలుగు</button>
+                <button class="assistant-lang-pill" data-lang="hi" onclick="setAssistantLanguage('hi')">🇮🇳 हिन्दी</button>
+                <button class="assistant-lang-pill" data-lang="ta" onclick="setAssistantLanguage('ta')">🇮🇳 தமிழ்</button>
+            </div>
+        </div>
+
+        <!-- Care Plan Context Ribbon -->
+        <div id="assistant-context-banner" class="assistant-context-banner">
+            <span id="assistant-context-text">📋 General Recovery Assistant (Upload summary for personalized answers)</span>
+        </div>
+
+        <!-- Messages Container -->
+        <div class="assistant-messages" id="assistant-messages">
+            <!-- Messages added dynamically -->
+        </div>
+
+        <!-- Suggested Questions Pills -->
+        <div class="assistant-suggestions" id="assistant-suggestions">
+            <!-- Populated by JS based on language -->
+        </div>
+
+        <!-- Voice Wave Visualizer (when listening or speaking) -->
+        <div id="assistant-wave" class="assistant-wave-bar" style="display: none;">
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <span id="wave-status-text" style="font-size:12px; font-weight:600; color:#0f766e; margin-left:8px;">Listening... Speak now</span>
+        </div>
+
+        <!-- Input Bar with Big Mic & Text Box -->
+        <div class="assistant-input-bar">
+            <button id="mic-record-btn" class="mic-btn" onclick="toggleSpeechRecognition()" title="Click to Speak">
+                <span class="mic-icon" id="mic-icon">🎙️</span>
+            </button>
+            <input type="text" id="assistant-text-input" class="assistant-text-input" placeholder="Ask a question or click the mic to speak..." onkeydown="if(event.key==='Enter') sendAssistantMessage()">
+            <button class="assistant-send-btn" onclick="sendAssistantMessage()" title="Send">
+                <span>➤</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- My Healthcare Profile Modal -->
+    <div class="modal-backdrop" id="profile-modal" style="display: none;" onclick="if(event.target===this) closeProfileModal()">
+        <div class="modal-card">
+            <div class="modal-card-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="modal-header-icon">👤</div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 18px; color: #0f766e;">My Healthcare Profile</h3>
+                        <span style="font-size: 12px; color: #64748b;">CareBridge AI Patient Portal</span>
+                    </div>
+                </div>
+                <button class="modal-close-btn" onclick="closeProfileModal()">&times;</button>
+            </div>
+            <div class="modal-card-body">
+                <div class="profile-hero-card">
+                    <div class="profile-hero-avatar" id="modal-user-avatar">--</div>
+                    <div class="profile-hero-info">
+                        <h4 id="modal-user-name-display" style="margin: 0; font-size: 17px; color: #0f172a;">User Name</h4>
+                        <span id="modal-user-email-display" style="font-size: 13px; color: #0d9488; font-weight: 500;">user@example.com</span>
+                    </div>
+                </div>
+
+                <div class="profile-meta-grid">
+                    <div class="profile-meta-box">
+                        <span class="meta-label">Member Since</span>
+                        <span class="meta-value" id="modal-user-joined">Today</span>
+                    </div>
+                    <div class="profile-meta-box">
+                        <span class="meta-label">Account Security</span>
+                        <span class="meta-value" style="color: #0d9488;">🔒 PBKDF2-SHA256</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 18px;">
+                    <label class="form-label" for="modal-edit-name">Display Name</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="modal-edit-name" class="modal-input" placeholder="Your Full Name">
+                        <button type="button" class="btn-primary" style="padding: 0 16px; height: 42px; font-size: 13.5px;" onclick="saveProfileName()">
+                            Save
+                        </button>
+                    </div>
+                    <div id="profile-update-msg" style="font-size: 12px; margin-top: 6px; display: none;"></div>
+                </div>
+            </div>
+            <div class="modal-card-footer">
+                <button type="button" class="btn-outline" onclick="closeProfileModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
